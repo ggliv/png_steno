@@ -1,0 +1,10 @@
+.idea/
+build/
+cmake-build-debug/
+obj/
+.clangd
+encoder
+decoder
+*.out
+/compile_commands.json
+/.cache/
