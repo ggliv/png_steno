@@ -1,23 +1,28 @@
 #include "bit_stream.h"
+#include "crc.h"
 #include "huffman.h"
 #include "image.h"
-#include "crc.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-char *file_to_buf(FILE *file) {
-  fseek(file, 0, SEEK_END);
-  long file_len = ftell(file);
+char *file_to_buf(const char *file_path) {
+  FILE *file_handle = fopen(file_path, "r");
+  if (file_handle == NULL) {
+    fprintf(stderr, "Could not open message file.");
+  }
+  fseek(file_handle, 0, SEEK_END);
+  long file_len = ftell(file_handle);
   if (file_len < 0) {
     fprintf(stderr, "Could not read message.\n");
     exit(EXIT_FAILURE);
   }
-  rewind(file);
+  rewind(file_handle);
   char *buf = malloc(file_len + 1);
-  if (fread(buf, 1, file_len, file) != (unsigned long)file_len) {
+  if (fread(buf, 1, file_len, file_handle) != (unsigned long)file_len) {
     fprintf(stderr, "Could not read message.\n");
     exit(EXIT_FAILURE);
   }
+  fclose(file_handle);
   buf[file_len] = '\0';
   return buf;
 }
@@ -32,9 +37,7 @@ int main(int argc, char **argv) {
 
   const char *const png_input_path = argv[1], *const png_output_path = argv[2],
                     *const message_path = argv[3];
-  FILE *message_file = fopen(message_path, "r");
-  const char *const message = file_to_buf(message_file);
-  fclose(message_file);
+  const char *const message = file_to_buf(message_path);
   struct BitStream bs = huffman_encode(message);
   uint32_t crc = crc32(bs.data, bs.data_len - 1);
   bs.data = realloc(bs.data, bs.data_len + sizeof(crc));
