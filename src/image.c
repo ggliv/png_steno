@@ -1,16 +1,26 @@
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_ONLY_PNG
-#define STBI_FAILURE_USERMSG
-#include "stb/stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "image.h"
-#include "stb/stb_image_write.h"
 #include <limits.h>
 #if CHAR_BIT != 8
 #error Machine must have 8-bit bytes.
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+
+#define WUFFS_IMPLEMENTATION
+#define WUFFS_CONFIG__STATIC_FUNCTIONS
+#define WUFFS_CONFIG__MODULES
+#define WUFFS_CONFIG__MODULE__BASE
+#define WUFFS_CONFIG__MODULE__CRC32
+#define WUFFS_CONFIG__MODULE__ZLIB
+#define WUFFS_CONFIG__MODULE__ADLER32
+#define WUFFS_CONFIG__MODULE__DEFLATE
+#define WUFFS_CONFIG__MODULE__PNG
+#define WUFFS_CONFIG__ENABLE_DROP_IN_REPLACEMENT__STB
+#include "wuffs/release/c/wuffs-v0.4.c"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"
+
+#include "image.h"
 
 struct PngImage {
   int width;

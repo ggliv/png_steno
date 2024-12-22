@@ -106,14 +106,16 @@ cool.
 
 ### PNG Library
 
-I elected to use [`stb_image`](https://github.com/nothings/stb/blob/master/stb_image.h)
-for this project. The library is extremely simple to use--it's all implemented
-into one header file and the exposed API is dead simple. This choice was made
-under the assumption that we trust our input PNGs and we don't need a
-hyper-optimized output image. If we didn't trust our input, we might instead opt
-to read PNGs with [Wuffs the Library](https://github.com/google/wuffs), and if
+This project uses
+[`stb_image`](https://github.com/nothings/stb/blob/master/stb_image.h) for
+image encoding and [Wuffs the
+Library](https://github.com/google/wuffs/blob/main/doc/wuffs-the-library.md)
+(with its `stb_image` compatibility layer) for image decoding. These libraries
+are extremely easy to use--they're each implemented in one header file and the
+exposed API is dead simple. This choice was made under the assumption that we
+cannot trust our input PNGs, but don't need a hyper-optimized output image. If
 we wanted to hyper-optimize our output image we might run it through
-[oxipng](https://github.com/shssoichiro/oxipng). I made sure to abstract all
-image-interaction code into my own tiny API in `image.h` so that swapping
-between different libraries would be easier. Fortunately, I've been happy using
-`stb_image` so far.
+[oxipng](https://github.com/shssoichiro/oxipng) after encoding, or use a more
+sophisticated encoder. All image-interaction code is abstracted into its own
+tiny API in `image.h`, so swapping between libraries should be pretty easy.
+I've been happy using `stb_image` and Wuffs so far.
