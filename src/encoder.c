@@ -4,6 +4,7 @@
 #include "image.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 char *file_to_buf(const char *file_path) {
   FILE *file_handle = fopen(file_path, "r");
@@ -37,8 +38,10 @@ int main(int argc, char **argv) {
 
   const char *const png_input_path = argv[1], *const png_output_path = argv[2],
                     *const message_path = argv[3];
+
   const char *const message = file_to_buf(message_path);
   struct BitStream bs = huffman_encode(message);
+
   uint32_t crc = crc32(bs.data, bs.data_len - 1);
   bs.data = realloc(bs.data, bs.data_len + sizeof(crc));
   bs.data[bs.data_len - 1] = (crc >> 24) & 0xFF;
@@ -46,6 +49,7 @@ int main(int argc, char **argv) {
   bs.data[bs.data_len + 1] = (crc >> 8) & 0xFF;
   bs.data[bs.data_len + 2] = (crc >> 0) & 0xFF;
   bs.data_len += sizeof(crc);
+
   struct PngImage *img = image_read(png_input_path);
   int img_width = image_get_width(img);
   int img_height = image_get_height(img);
@@ -53,8 +57,8 @@ int main(int argc, char **argv) {
   if ((size_t)(img_width * img_height) < bs.data_len) {
     fprintf(stderr,
             "ERROR: Message is too long to encode into provided PNG. Max: %d, "
-            "message: %lu.\n",
-            img_width * img_height, bs.data_len);
+            "message: %lu (plus CRC32 is %lu).\n",
+            img_width * img_height, strlen(message), strlen(message) + bs.data_len);
     exit(EXIT_FAILURE);
   }
 
